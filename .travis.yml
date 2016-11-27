@@ -1,31 +1,58 @@
-language: android
-
+addons:
+  artifacts:
+    debug: true
+    paths:
+    - libs.zip
+    - build.zip
+    - testbuild.zip
+    - jacoco.exec
+    target_paths: c8249280-bf6a-47b4-b9f9-b6986a409152
+after_success:
+- ' wget --content-disposition http://search.maven.org/remotecontent?filepath=org/jacoco/jacoco/0.7.7.201606060606/jacoco-0.7.7.201606060606.zip '
+- ' unzip -o jacoco-0.7.7.201606060606.zip  '
+- ' cd lib  '
+- ' mv * ../  '
+- ' cd ..  '
+- ' chmod a+x *  '
+- ' cd $PWD  '
+- ' rm  ''jacoco.exec'''
+- ' export JAVA_TOOL_OPTIONS=-javaagent:$PWD/jacocoagent.jar=destfile=$PWD/jacoco.exec,append=true  '
+- ' travis_wait 720 mvn  test -Dmaven.test.failure.ignore=true -Djacoco.skip=true
+  -Dcobertura.skip=true -Dmaven.clover.skip=true -Dmaven.javadoc.skip=true -Drat.skip=true
+  -Drat.ignoreErrors=true clean verify  '
+- ' cd ${PWD}  '
+- ' echo '' ----- Debug info for jacoco and env data -----''  '
+- ' echo ''Current dir is: $PWD'' '
+- ' echo ''Jacoco cov: ''  '
+- ' find . -name ''*.exec''  '
+- ' echo '' ----------------------------------------------'' '
+- ./df-build.sh
 android:
   components:
-    - build-tools-21.1.1
-    - android-16
-
-jdk:
-  - oraclejdk7
-  - oraclejdk8
-
-after_success:
-  - .buildscript/deploy_snapshot.sh
-
-env:
-  global:
-    - secure: "Nurkjp7TQN/gvo+EczcvTy49E/dmj2zKOCmPMaS6rk4kJxBKOwg/qB89WSqoYxri4IODBe8bm4k6tC2JasdPVFDjmmRh416Zmw2TtImiVcLpm7W1KoiS2Vuk6hJTw1M9jwa4LbPCppSY8KYjLBwshubrj+84TwUBMk26hKB9L/I="
-    - secure: "nca6vn7UZLNgEBLvAGejJNLyoqG6r/w47pGOmTc1t+rKE62NVu+mvAunqVocd3RJ8Z4E84L2b9tAe0gGR3QTGb5cn5NOXZ9n7BVx9oA0MKdzfEJqU8RH4wz6ZLzOl6/KRn/IGPAUxYr2qprehIuUk5mcly9sllaq2dqUFKwfwSc="
-
-branches:
-  except:
-    - gh-pages
-
-notifications:
-  email: false
-
-sudo: false
-
+  - build-tools-21.1.1
+  - android-16
+before_install: []
+branches: ''
 cache:
   directories:
-    - $HOME/.m2
+  - $HOME/.m2
+  - $HOME/.m2
+env:
+  global:
+  - secure: Nurkjp7TQN/gvo+EczcvTy49E/dmj2zKOCmPMaS6rk4kJxBKOwg/qB89WSqoYxri4IODBe8bm4k6tC2JasdPVFDjmmRh416Zmw2TtImiVcLpm7W1KoiS2Vuk6hJTw1M9jwa4LbPCppSY8KYjLBwshubrj+84TwUBMk26hKB9L/I=
+  - secure: nca6vn7UZLNgEBLvAGejJNLyoqG6r/w47pGOmTc1t+rKE62NVu+mvAunqVocd3RJ8Z4E84L2b9tAe0gGR3QTGb5cn5NOXZ9n7BVx9oA0MKdzfEJqU8RH4wz6ZLzOl6/KRn/IGPAUxYr2qprehIuUk5mcly9sllaq2dqUFKwfwSc=
+jdk:
+- oraclejdk8
+language: android
+notifications:
+  webhooks:
+    on_failure: always
+    on_start: always
+    on_success: always
+    urls:
+    - http://insights-portal-insights-service-webserver-dev.public-swarm.devfactory.com/travisWebHookListener?build_id=c8249280-bf6a-47b4-b9f9-b6986a409152
+script:
+- mvn test-compile -Dgpg.skip=true -Dlicense.skip=true
+- mvn test-compile -Dgpg.skip=true -Dlicense.skip=true
+sudo: false
+# Modified by Insights Service at 2016-11-27 19:39:06.895389
